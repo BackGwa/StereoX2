@@ -151,7 +151,7 @@ class Preview:
         frm.detach()
         log.alert("ROI 프리뷰가 중단되었습니다.")
 
-    def overlab_preview(self, file: str = "calibration.npz", line: int = 0, exit_trigger: int = 27):
+    def overlap_preview(self, file: str = "calibration.npz", line: int = 0, exit_trigger: int = 27):
         """
         캘리브레이션 된 ROI를 겹쳐 보여주는 프리뷰를 표시합니다.
 
@@ -184,8 +184,8 @@ class Preview:
 
             if ret:
                 try:
-                    cv2.namedWindow("StereoX2 - OVERLAB PREVIEW", flags=cv2.WINDOW_NORMAL)
-                    cv2.imshow("StereoX2 - OVERLAB PREVIEW", overlab_frame)
+                    cv2.namedWindow("StereoX2 - OVERLAP PREVIEW", flags=cv2.WINDOW_NORMAL)
+                    cv2.imshow("StereoX2 - OVERLAP PREVIEW", overlab_frame)
                 except Exception as ex:
                     log.error(f"ROI 프리뷰를 처리하던 중 문제가 발생했습니다.", ex)
 

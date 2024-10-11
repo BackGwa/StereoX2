@@ -23,7 +23,7 @@ Keeworks 스테레오 카메라 라이브러리
     pre.source_preview()        # 프레임 미리보기
     pre.calibration_preview()   # 캘리브레이션 미리보기
     pre.roi_preview()           # ROI 영역 미리보기
-    pre.overlab_preview()       # 오버랩 미리보기
+    pre.overlap_preview()       # 오버랩 미리보기
     pre.depth_preview()         # 뎁스 맵 미리보기
     ```
 
