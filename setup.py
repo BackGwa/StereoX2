@@ -9,7 +9,8 @@ setup(
     description="Keeworks Stereo Camera Library",
     url="https://github.com/BackGwa/StereoX2",
     install_requires=[
-        
+        "numpy>=2.1.2",
+        "opencv-python>=4.10.0.84"
     ],
     packages = find_packages(),
     python_requires=">=3.11.10",
