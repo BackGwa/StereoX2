@@ -7,7 +7,6 @@ Keeworks 스테레오 카메라 라이브러리
     ```py
     from StereoX2 import Calibration
 
-    # 캘리브레이션 인스턴스 생성
     cali = Calibration(source=0, source_size=(2560, 720),
                        board_size=(8, 6), square_size=0.025)
 
@@ -19,10 +18,50 @@ Keeworks 스테레오 카메라 라이브러리
     ```py
     from StereoX2 import Preview
 
-    pv = Preview(source=0, source_size=(2560, 720))
+    pre = Preview(source=0, source_size=(2560, 720))
     
-    pv.source_preview()         # 프레임 미리보기
-    pv.calibration_preview()    # 캘리브레이션 미리보기
+    pre.source_preview()        # 프레임 미리보기
+    pre.calibration_preview()   # 캘리브레이션 미리보기
+    pre.roi_preview()           # ROI 영역 미리보기
+    pre.overlab_preview()       # 오버랩 미리보기
+    pre.depth_preview()         # 뎁스 맵 미리보기
+    ```
+
+- ### 렉티피케이션 맵 계산
+    ```py
+    from StereoX2 import Calculate
+
+    calc = Calculate()
+
+    # 캘리브레이션 데이터 가져오기 & 렉티피케이션 맵 계산
+    data = calc.read_calibration()
+    map_data = calc.rectification(data, (2560, 720))
+    ```
+
+- ### 뎁스 맵 계산
+    ```py
+    from StereoX2 import Frame, Calculate
+
+    frm = Frame(source=0, source_size=(2560, 720))
+    calc = Calculate()
+
+    # 소스 할당 및 읽기
+    frm.attach()
+    ret, left_frame, right_frame = frm.read()
+
+    # 캘리브레이션 데이터 가져오기 & 렉티피케이션 맵 계산
+    data = calc.read_calibration()
+    map1x, map1y, map2x, map2y, roi1, roi2 = calc.rectification(data, (2560, 720))
+
+    # 렉티피케이션 맵 매핑
+    left_rectified, right_rectified = calc.mapping((left_frame, map1x, map1y),
+                                                   (right_frame, map2x, map2y))
+
+    # ROI 프레임 가져오기
+    left_roi, right_roi = calc.get_roi(left_rectified, right_rectified, roi1, roi2)
+
+    # 뎁스 맵 계산
+    depth = calc.depth(left_roi, right_roi)
     ```
 
 ## 패키지 빌드

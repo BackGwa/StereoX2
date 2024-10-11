@@ -1,8 +1,9 @@
-from StereoX2 import Calibration, Preview
+from StereoX2 import Preview
 
-SOURCE = 0
-SOURCE_SIZE = (2560, 720)
+pre = Preview(source=0, source_size=(2560, 720))
 
-pv = Preview(SOURCE, SOURCE_SIZE)
-pv.source_preview()
-pv.calibration_preview()
+pre.source_preview(line=15)
+pre.calibration_preview(line=15)
+pre.roi_preview(line=15)
+pre.overlab_preview(line=15)
+pre.depth_preview(num_disparities=160, block_size=25)
