@@ -83,9 +83,9 @@ class Preview:
                         self.__draw_line__(frame, line)
 
                     cv2.rectangle(left_rectified, (roi1[0], roi1[1]), 
-                                  (roi1[0] + roi1[2], roi1[1] + roi1[3]), (255, 0, 0), 2)
+                                  (roi1[0] + roi1[2], roi1[1] + roi1[3]), (0, 0, 128), 3)
                     cv2.rectangle(right_rectified, (roi2[0], roi2[1]), 
-                                  (roi2[0] + roi2[2], roi2[1] + roi2[3]), (255, 0, 0), 2)
+                                  (roi2[0] + roi2[2], roi2[1] + roi2[3]), (0, 0, 128), 3)
 
                     intersect_x1 = max(roi1[0], roi2[0])
                     intersect_y1 = max(roi1[1], roi2[1])
@@ -94,9 +94,9 @@ class Preview:
 
                     if intersect_x1 < intersect_x2 and intersect_y1 < intersect_y2:
                         cv2.rectangle(left_rectified, (intersect_x1, intersect_y1), 
-                                      (intersect_x2, intersect_y2), (0, 255, 0), 2)
+                                      (intersect_x2, intersect_y2), (0, 255, 0), 3)
                         cv2.rectangle(right_rectified, (intersect_x1, intersect_y1), 
-                                      (intersect_x2, intersect_y2), (0, 255, 0), 2)
+                                      (intersect_x2, intersect_y2), (0, 255, 0), 3)
 
                     cv2.namedWindow("StereoX2 - LEFT CALIBRATED PREVIEW", flags=cv2.WINDOW_NORMAL)
                     cv2.namedWindow("StereoX2 - RIGHT CALIBRATED PREVIEW", flags=cv2.WINDOW_NORMAL)
