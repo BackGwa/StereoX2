@@ -88,7 +88,7 @@ class Calibration:
             if count < capture_count:
                 log.warn(f"캡처 프로세스가 조기에 종료되었습니다. {count}/{capture_count} 프레임만 캡처되었습니다.")
 
-            log.alert("스테레오 캘리브레이션을 시작합니다...")
+            log.alert("스테레오 캘리브레이션을 시작합니다... 이 작업은 오랜 시간이 소요됩니다.")
 
             calibrate_data = cv2.stereoCalibrate(
                 obj_points, left_image_points, right_image_points,

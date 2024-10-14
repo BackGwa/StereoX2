@@ -40,7 +40,7 @@ class Frame:
         except Exception as ex:
             log.error(f"소스 해제를 시도했지만, 문제가 발생했습니다.", ex)
 
-    def vsplit(self, frame) -> tuple:
+    def vsplit(self, frame: cv2.Mat) -> tuple:
         """
         프레임을 수직으로 반으로 나눕니다.
 

@@ -30,6 +30,7 @@ class Preview:
         """
         원본 소스의 프리뷰를 표시합니다.
 
+        :param line: 표시할 수평선의 수
         :param exit_trigger: 프리뷰를 종료할 키 코드 (기본값: ESC)
         """
         frm = Frame(source=self.source, source_size=(self.width, self.height))
@@ -116,6 +117,7 @@ class Preview:
         캘리브레이션 후 ROI만 보여주는 프리뷰를 표시합니다.
 
         :param file: 캘리브레이션 데이터 파일 경로
+        :param line: 표시할 수평선의 수
         :param exit_trigger: 프리뷰를 종료할 키 코드 (기본값: ESC)
         """
         data = calc.read_calibration(file)
@@ -156,6 +158,7 @@ class Preview:
         캘리브레이션 된 ROI를 겹쳐 보여주는 프리뷰를 표시합니다.
 
         :param file: 캘리브레이션 데이터 파일 경로
+        :param line: 표시할 수평선의 수
         :param exit_trigger: 프리뷰를 종료할 키 코드 (기본값: ESC)
         """
         data = calc.read_calibration(file)
@@ -179,13 +182,13 @@ class Preview:
             cyan_frame[:, :, 0] = right_roi[:, :, 0]
             cyan_frame[:, :, 1] = right_roi[:, :, 1]
 
-            overlab_frame = cv2.addWeighted(red_frame, 1, cyan_frame, 1, 0)
-            self.__draw_line__(overlab_frame, line)
+            overlap_frame = cv2.addWeighted(red_frame, 1, cyan_frame, 1, 0)
+            self.__draw_line__(overlap_frame, line)
 
             if ret:
                 try:
                     cv2.namedWindow("StereoX2 - OVERLAP PREVIEW", flags=cv2.WINDOW_NORMAL)
-                    cv2.imshow("StereoX2 - OVERLAP PREVIEW", overlab_frame)
+                    cv2.imshow("StereoX2 - OVERLAP PREVIEW", overlap_frame)
                 except Exception as ex:
                     log.error(f"ROI 프리뷰를 처리하던 중 문제가 발생했습니다.", ex)
 
@@ -225,11 +228,12 @@ class Preview:
                     depth_map_normalized = cv2.normalize(depth, None, 0, 255, cv2.NORM_MINMAX)
                     depth_map_colored = cv2.applyColorMap(depth_map_normalized.astype(np.uint8), cv2.COLORMAP_JET)
 
-                    cv2.putText(depth_map_colored, f'MIN DISTANCE : {depth_min:.2f}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 1)
-                    cv2.putText(depth_map_colored, f'MAX DISTANCE : {depth_max:.2f}', (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 1)
+                    overlap_frame = cv2.addWeighted(left_roi, 0.25, depth_map_colored, 1.0, 0)
+
+                    cv2.putText(overlap_frame, f'{depth_max:.2f}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 1)
 
                     cv2.namedWindow("StereoX2 - DEPTH MAP PREVIEW", flags=cv2.WINDOW_NORMAL)
-                    cv2.imshow("StereoX2 - DEPTH MAP PREVIEW", depth_map_colored)
+                    cv2.imshow("StereoX2 - DEPTH MAP PREVIEW", overlap_frame)
                 except Exception as ex:
                     log.error(f"뎁스 프리뷰를 처리하던 중 문제가 발생했습니다.", ex)
 

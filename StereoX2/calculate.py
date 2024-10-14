@@ -65,12 +65,17 @@ class Calculate:
     def depth(self, left_image, right_image, num_disparities = 16, block_size: int = 5, uniqueness_ratio: int = 15, speckle_window_size: int = 150, speckle_range: int = 1):
         stereo = cv2.StereoSGBM.create(numDisparities=num_disparities,
                                        blockSize=block_size,
+                                       # P1=8*3*block_size**2,
+                                       # P2=32*3*block_size**2,
                                        uniquenessRatio=uniqueness_ratio,
                                        speckleWindowSize=speckle_window_size,
-                                       speckleRange=speckle_range)
+                                       speckleRange=speckle_range,
+                                       disp12MaxDiff=1,
+                                       mode=cv2.STEREO_SGBM_MODE_SGBM_3WAY)
         left_gray = cv2.cvtColor(left_image, cv2.COLOR_BGR2GRAY)
         right_gray = cv2.cvtColor(right_image, cv2.COLOR_BGR2GRAY)
         disparity = stereo.compute(left_gray, right_gray).astype(np.float32) / 16.0
+        
         return disparity
     
     def depth_distance(self, disparity) -> tuple:
