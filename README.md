@@ -83,4 +83,4 @@ pip install [whl_file_path]             # 패키지 설치
 ```
 
 ## 기여자
-- 미래 광학기술 연구소 - [현장실습생 강찬영](https://github.com/BackGwa)
+- Keeworks 미래 광학기술 연구소 - [현장실습생 강찬영](https://github.com/BackGwa)
