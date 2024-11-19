@@ -141,13 +141,8 @@ class Frame:
         if ret != 0:
             return None
 
-        if stOutFrame.stFrameInfo.enPixelType == PixelType_Gvsp_Mono8:
-            numpy_array = np.frombuffer(bytes(stOutFrame.pBufAddr[:stOutFrame.stFrameInfo.nFrameLen]), dtype=np.uint8)
-            frame = numpy_array.reshape((stOutFrame.stFrameInfo.nHeight, stOutFrame.stFrameInfo.nWidth))
-        else:
-            # RGB 형식 처리 (필요한 경우 다른 픽셀 형식도 추가)
-            numpy_array = np.frombuffer(bytes(stOutFrame.pBufAddr[:stOutFrame.stFrameInfo.nFrameLen]), dtype=np.uint8)
-            frame = numpy_array.reshape((stOutFrame.stFrameInfo.nHeight, stOutFrame.stFrameInfo.nWidth, 3))
+        numpy_array = np.frombuffer(bytes(stOutFrame.pBufAddr[:stOutFrame.stFrameInfo.nFrameLen]), dtype=np.uint8)
+        frame = numpy_array.reshape((stOutFrame.stFrameInfo.nHeight, stOutFrame.stFrameInfo.nWidth))
 
         camera.MV_CC_FreeImageBuffer(stOutFrame)
         return frame
