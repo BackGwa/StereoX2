@@ -4,16 +4,17 @@ from .logger import Logger
 log = Logger("Frame", "log/Frame")
 
 class Frame:
-    def __init__(self, source: int | str, source_size: tuple):
+    def __init__(self, left_source: int | str, right_source: int | str):
         """
         Frame 객체를 초기화합니다.
 
         :param source: 카메라 소스 (장치 인덱스 또는 비디오 파일 경로)
         :param source_size: 소스의 (너비, 높이) 튜플
         """
-        self.source = source
-        self.__source__ = None
-        self.width, self.height = source_size
+        self.left_source = left_source
+        self.right_source = right_source
+        self.__left_source__ = None
+        self.__right_source__ = None
 
     def attach(self):
         """
@@ -21,9 +22,8 @@ class Frame:
         """
         try:
             log.alert("소스를 할당하는 중입니다.")
-            self.__source__ = cv2.VideoCapture(self.source)
-            self.__source__.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
-            self.__source__.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
+            self.__left_source__ = cv2.VideoCapture(self.left_source)
+            self.__right_source__ = cv2.VideoCapture(self.right_source)
             log.success("소스를 할당했습니다.")
         except Exception as ex:
             log.error(f"소스를 가져오던 중 문제가 발생하였습니다.", ex)
@@ -34,20 +34,12 @@ class Frame:
         """
         try:
             log.alert("소스를 해제하는 중입니다.")
-            self.__source__.release()
+            self.__left_source__.release()
+            self.__right_source__.release()
             cv2.destroyAllWindows()
             log.success("소스를 해제했습니다.")
         except Exception as ex:
             log.error(f"소스 해제를 시도했지만, 문제가 발생했습니다.", ex)
-
-    def vsplit(self, frame: cv2.Mat) -> tuple:
-        """
-        프레임을 수직으로 반으로 나눕니다.
-
-        :param frame: 분할할 프레임
-        :return: (왼쪽 프레임, 오른쪽 프레임) 튜플
-        """
-        return (frame[:, :self.width//2], frame[:, self.width//2:])
 
     def read(self) -> tuple:
         """
@@ -55,11 +47,11 @@ class Frame:
 
         :return: (성공 여부, 왼쪽 프레임, 오른쪽 프레임) 튜플
         """
-        ret, frame = self.__source__.read()
+        left_ret, left_frame = self.__left_source__.read()
+        right_ret, right_frame = self.__right_source__.read()
 
-        if not ret:
+        if not left_ret or not right_ret:
             log.warn("소스를 읽지 못했습니다.")
-            return (ret, None, None)
+            return (False, None, None)
 
-        left_frame, right_frame = self.vsplit(frame)
-        return (ret, left_frame, right_frame)
+        return (True, left_frame, right_frame)

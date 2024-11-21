@@ -1,12 +1,17 @@
-import cv2
+import cv2, sys
 import numpy as np
 import threading
+import msvcrt
+from ctypes import *
+
+sys.path.append("./MvImport")
 from MvCameraControl_class import *
+
 from .logger import Logger
 
 log = Logger("Frame", "log/Frame")
 
-class Frame:
+class MVSFrame:
     def __init__(self, left_source: int, right_source: int):
         """
         Frame 객체를 초기화합니다.
@@ -30,12 +35,12 @@ class Frame:
         """
         ret = camera.MV_CC_CreateHandle(device_info)
         if ret != 0:
-            log.error(f"Create Handle fail! ret[0x{ret:x}]")
+            log.error(f"장치 핸들을 만드는데 실패하였습니다. ret[0x{ret:x}]")
             return False
 
         ret = camera.MV_CC_OpenDevice(MV_ACCESS_Exclusive, 0)
         if ret != 0:
-            log.error(f"Open Device fail! ret[0x{ret:x}]")
+            log.error(f"장치를 열지못했습니다. [0x{ret:x}]")
             return False
 
         # GigE 카메라인 경우 패킷 크기 최적화
@@ -44,12 +49,18 @@ class Frame:
             if int(nPacketSize) > 0:
                 ret = camera.MV_CC_SetIntValue("GevSCPSPacketSize", nPacketSize)
                 if ret != 0:
-                    log.warning(f"Warning: Set Packet Size fail! ret[0x{ret:x}]")
+                    log.warning(f"패킷 사이즈를 설정하지 못했습니다! [0x{ret:x}]")
 
         # 트리거 모드 설정
-        ret = camera.MV_CC_SetEnumValue("TriggerMode", MV_TRIGGER_MODE_OFF)
+        ret = camera.MV_CC_SetEnumValue("TriggerMode", MV_TRIGGER_MODE_ON)
         if ret != 0:
-            log.error(f"Set trigger mode fail! ret[0x{ret:x}]")
+            log.error(f"트리거 모드를 설정하는데 문제가 발생했습니다. [0x{ret:x}]")
+            return False
+
+        # Line 0 트리거 소스로 설정
+        ret = camera.MV_CC_SetEnumValue("TriggerSource", MV_TRIGGER_SOURCE_LINE0)
+        if ret != 0:
+            log.error(f"트리거를 할당하는데 문제가 발생했습니다. [0x{ret:x}]")
             return False
 
         return True
@@ -130,21 +141,33 @@ class Frame:
             log.error(f"소스 해제를 시도했지만, 문제가 발생했습니다.", ex)
             raise
 
-    def __get_frame__(self, camera: MvCamera) -> np.ndarray:
+    def __get_frame__(self, camera: MvCamera) -> tuple:
         """
-        단일 카메라에서 프레임을 획득하고 Mat 객체로 변환합니다.
+        단일 카메라에서 프레임을 획득하고 Mat 객체로 변환하여 반환합니다.
         """
         stOutFrame = MV_FRAME_OUT()
         memset(byref(stOutFrame), 0, sizeof(stOutFrame))
         
-        ret = camera.MV_CC_GetImageBuffer(stOutFrame, 1000)
+        # 이미지 버퍼 획득 (타임아웃 시간 좀 더 길게 설정)
+        ret = camera.MV_CC_GetImageBuffer(stOutFrame, 2000)
         if ret != 0:
+            log.error(f"이미지 버퍼를 가져오는데 문제가 발생했습니다. [0x{ret:x}]")
             return None
 
-        numpy_array = np.frombuffer(bytes(stOutFrame.pBufAddr[:stOutFrame.stFrameInfo.nFrameLen]), dtype=np.uint8)
-        frame = numpy_array.reshape((stOutFrame.stFrameInfo.nHeight, stOutFrame.stFrameInfo.nWidth))
+        # Mono8 형식에 맞게 numpy 배열 생성
+        numpy_array = np.frombuffer(
+            bytes(stOutFrame.pBufAddr[:stOutFrame.stFrameInfo.nFrameLen]), 
+            dtype=np.uint8
+        )
+        
+        # 2D 그레이스케일 이미지로 리쉐이프
+        frame = numpy_array.reshape(
+            (stOutFrame.stFrameInfo.nHeight, stOutFrame.stFrameInfo.nWidth)
+        )
 
+        # 이미지 버퍼 해제
         camera.MV_CC_FreeImageBuffer(stOutFrame)
+        
         return frame
 
     def read(self) -> tuple:
@@ -159,6 +182,8 @@ class Frame:
         try:
             left_frame = self.__get_frame__(self.__left_source__)
             right_frame = self.__get_frame__(self.__right_source__)
+            left_frame = left_frame.copy()
+            right_frame = right_frame.copy()            
 
             if left_frame is None or right_frame is None:
                 return False, None, None
