@@ -6,7 +6,7 @@ setup(
     version="0.1.0",
     author="KANG CHANYOUNG",
     author_email="cykang@keeworks.com",
-    description="Keeworks Stereo Camera Library",
+    description="Stereo Camera Library",
     url="https://github.com/BackGwa/StereoX2",
     install_requires=[
         "numpy>=2.1.2",
