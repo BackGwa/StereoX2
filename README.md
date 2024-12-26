@@ -81,6 +81,3 @@ conda activate [env_name]               # 개발 환경 활성화
 
 pip install [whl_file_path]             # 패키지 설치
 ```
-
-## 기여자
-- Keeworks 미래 광학기술 연구소 - [현장실습생 강찬영](https://github.com/BackGwa)
